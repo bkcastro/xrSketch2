@@ -84,12 +84,10 @@
     let lastUpdateTime = 0; 
     const targetFrameTime = 1000 / 30; 
 
-    function animate() {
-        requestAnimationFrame(animate);
+    renderer.setAnimationLoop(() => {
         group.rotation.y += 0.005;
         renderer.render(scene, camera);
-    }
-    
-    animate(); 
+    });
+
 </script>
 </html>
