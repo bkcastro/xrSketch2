@@ -3,11 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>xrSketch2</title>
+    <script type="importmap"> { 
+        "imports": { 
+        "three": "https://cdn.jsdelivr.net/npm/three@v0.169.0/build/three.module.js", 
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@v0.169.0/examples/jsm/" } 
+            }
+    </script>
 </head>
+
 <body>
     
 </body>
 
-<script type="module" src="/main.js"></script>
+<script type="module">
+    import * as THREE from 'three'
+    import { XRButton } from 'three/addons/webxr/XRButton.js';
+    const scene = new THREE.Scene(); 
+    const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 ); 
+    camera.position.set(0, 0, 10)
+    const renderer = new THREE.WebGLRenderer(); 
+    renderer.setSize( window.innerWidth, window.innerHeight ); 
+    document.body.appendChild( renderer.domElement );
+    renderer.xr.enabled = true
+    document.body.appendChild(XRButton.createButton(renderer))
+
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft ambient light
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(10, 10, 10);
+    scene.add(directionalLight);
+
+    const material = new THREE.MeshPhongMaterial({
+        color: 0xff0000,
+        emissive: 0x000000,
+        specular: 0x111111,
+        shininess: 30,
+        reflectivity: 1,
+        refractionRatio: 0.98,
+        combine: THREE.MultiplyOperation,
+    });
+    //const material = new THREE.MeshPhongMaterial( { color: 0xff0000, emissive: 0x000000, specular: 0x111111, shininess: 30, reflectivity: 1, refractionRatio: .98, combine: THREE.MultiplyOperation } ); 
+    //const material = new THREE.MeshStandardMaterial( { color: 0xff0000, emissive: 0x000000, roughness: 1, metalness: 0 } ); 
+    //const material = new THREE.MeshBasicMaterial({color: 0xff0000})
+
+    const group = new THREE.Group(); 
+
+    scene.add(group); 
+    group.scale.multiplyScalar(1/3)
+    group.position.y = 1
+
+    function draw() {
+        group.clear(); 
+
+        for (let i = 0; i < 10; i++) {
+            const geometry = new THREE.TorusGeometry( 1+Math.random()*3, 0.1, 6, (Math.random() > .5) ? 3 : 4); 
+            const torus = new THREE.Mesh( geometry, material ); 
+            torus.rotation.set(
+                Math.random()*Math.PI, 
+                Math.random()*Math.PI, 
+                Math.random()*Math.PI
+            )
+            torus.position.set(
+                (Math.random()-.5) * 10, 
+                Math.random() * 10,
+                (Math.random()-.5) * 10, 
+            )
+        
+            group.add(torus); 
+        }
+    }
+
+    draw(); 
+
+    setInterval(() => {
+    draw();
+    }, 3000); 
+
+    let lastUpdateTime = 0; 
+    const targetFrameTime = 1000 / 30; 
+
+    function animate() {
+        requestAnimationFrame(animate);
+        group.rotation.y += 0.005;
+        renderer.render(scene, camera);
+    }
+    
+    animate(); 
+</script>
 </html>
